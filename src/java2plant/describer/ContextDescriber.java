@@ -32,7 +32,7 @@ public class ContextDescriber {
         classes.add(c);
     }
 
-    void writeUML(BufferedWriter fw) {
+    public void writeUML(BufferedWriter fw) {
         try {
             fw.write("package "+ this.namespace);
             fw.newLine();

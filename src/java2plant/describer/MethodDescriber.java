@@ -25,58 +25,11 @@ public class MethodDescriber {
     private boolean isAbstract;
     private ArrayList<ArgumentDescriber> args = new ArrayList();
 
-    MethodDescriber(String str) {
+    public MethodDescriber() {
         this.visibility = new Visibility("private");
         this.isAbstract = false;
-        this.buildFromString(str);
     }
 
-    private void buildFromString(String str) {
-        String[] split = str.split(" ");
-        int i=0;
-        while(i < split.length ) {
-            if(split[i].isEmpty()) {
-                i++;
-            } else if(split[i].equals("public") || split[i].equals("private") ||
-                    split[i].equals("protected") || split[i].equals("package")) {
-                this.setVisibility(split[i]);
-                i++;
-            } else if(split[i].equals("static")) {
-                i++;
-            } else if(split[i].contains("final")) {
-                i++;
-            } else if(split[i].contains("abstract")) {
-                this.isAbstract = true;
-                i++;
-            } else if(split[i].startsWith("@")) {
-                i++;
-            } else {
-                if(split[i].contains("(")) {
-                    this.setReturnType("");
-                } else {
-                    this.setReturnType( split[i]);
-                    i++;
-                }
-                this.setName(split[i].substring(0, split[i].indexOf('(')));
-                i = split.length; //exit
-            }
-
-        }
-        /* Construction des arguments */
-        int a = str.indexOf("(");
-        int b = str.indexOf(")");
-
-        str = str.substring(str.indexOf("(")+1, str.indexOf(")"));
-        if(!str.isEmpty()) {
-            split = str.split(",");
-            for(int j=0; j<split.length; j++) {
-                ArgumentDescriber arg = new ArgumentDescriber(split[j]);
-                args.add(arg);
-            }
-            
-        }
-    }
-    
     public Visibility getVisibility() {
         return visibility;
     }
@@ -140,6 +93,10 @@ public class MethodDescriber {
         } catch (IOException ex) {
             Logger.getLogger(MethodDescriber.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public void addArg(ArgumentDescriber arg) {
+        this.args.add(arg);
     }
 
 }

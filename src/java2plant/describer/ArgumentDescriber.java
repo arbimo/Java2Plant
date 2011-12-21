@@ -17,7 +17,7 @@ public class ArgumentDescriber {
     private String type;
     private String name;
 
-    ArgumentDescriber(String str) {
+    public ArgumentDescriber(String str) {
         String[] split = str.split(" ");
         int i=0;
         while(i<split.length && split[i].isEmpty()) {

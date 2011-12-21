@@ -4,7 +4,6 @@
  */
 package java2plant.describer;
 
-import java2plant.describer.ClassDescriber;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Iterator;
@@ -15,7 +14,7 @@ import java.util.logging.Logger;
  *
  * @author arthur
  */
-class InterfaceDescriber extends ClassDescriber {
+public class InterfaceDescriber extends ClassDescriber {
 
     @Override
     void writeUML(BufferedWriter fw) {

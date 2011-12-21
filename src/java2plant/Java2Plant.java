@@ -4,16 +4,16 @@
  */
 package java2plant;
 
+import java2plant.describer.ContextDescriber;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java2plant.builder.AbstractBuilder;
+import java2plant.builder.FromJavaBuilder;
 import javax.swing.JFileChooser;
 
 /**
@@ -42,6 +42,8 @@ public class Java2Plant {
             }
 
             fOutputDir.mkdirs();
+            File fClassDir = new File(fOutputDir, "class");
+            fClassDir.mkdirs();
 
             ArrayList<File> files = new ArrayList();
             ArrayList<File> dirs = new ArrayList();
@@ -74,16 +76,15 @@ public class Java2Plant {
 
 
             FileWriter commonFW = new FileWriter(fOutputDir.getAbsolutePath()
-                    + File.separator + "main");
+                    + File.separator + "complete-diag.uml");
             commonFW.write("@startuml img/default.png\n");
 
             for(i=0; i<files.size(); i++) {
                 FileInputStream fis = new FileInputStream(files.get(i));
-                Context context = new Context();
-                ContextParser parser = new ContextParser(fis, context);
-                parser.parse();
+                AbstractBuilder builder = new FromJavaBuilder();
+                ContextDescriber context = builder.buildFromStream(fis);
                 String umlFileName = fOutputDir.getAbsolutePath()
-                        +File.separator;
+                        +File.separator + "class" + File.separator;
                 umlFileName += (files.get(i).getName().replace(".java", ".iuml"));
                 FileWriter fw = new FileWriter(umlFileName);
                 BufferedWriter out = new BufferedWriter(fw);
@@ -91,17 +92,21 @@ public class Java2Plant {
                 out.close();
 
                 
-                commonFW.write("!include "+ files.get(i).getName().replace(".java", ".iuml")
-                        +"\n");
+                commonFW.write("!include "+ "class"+File.separator + 
+                        files.get(i).getName().replace(".java", ".iuml") +"\n");
             }
+
+            // Create an empty file for user modifications
+            File fRelations = new File(fOutputDir, "relations.iuml");
+            if(!fRelations.exists()) {
+                fRelations.createNewFile();
+            }
+            commonFW.write("!include "+ "relations.iuml\n");
+            
             commonFW.write("@enduml\n");
             commonFW.close();
             
 
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Java2Plant.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Java2Plant.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(Java2Plant.class.getName()).log(Level.SEVERE, null, ex);
         }
