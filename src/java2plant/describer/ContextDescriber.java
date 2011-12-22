@@ -24,7 +24,6 @@ public class ContextDescriber {
 
     public void setNamespace(String namespace) {
         this.namespace = namespace;
-        System.out.println("Nouveau namespace : "+ namespace);
     }
 
     public void addClass(ClassDescriber c) {

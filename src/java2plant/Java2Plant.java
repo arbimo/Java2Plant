@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package java2plant;
 
 import java2plant.describer.ContextDescriber;
@@ -22,13 +18,15 @@ import javax.swing.JFileChooser;
  */
 public class Java2Plant {
 
+    private static File fInputDir;
+    private static File fOutputDir;
+    private static File fClassDir;
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         try {
-            File fInputDir;
-            File fOutputDir;
             if(args.length == 2) {
                 fInputDir = new File(args[0]);
                 fOutputDir = new File(args[1]);
@@ -42,7 +40,7 @@ public class Java2Plant {
             }
 
             fOutputDir.mkdirs();
-            File fClassDir = new File(fOutputDir, "class");
+            fClassDir = new File(fOutputDir, "class");
             fClassDir.mkdirs();
 
             ArrayList<File> files = new ArrayList();
@@ -54,46 +52,37 @@ public class Java2Plant {
                 files.add(fInputDir);
             }
 
-            int i=0;
 
-            while(i<dirs.size()) {
+            for(int i=0; i<dirs.size(); i++) {
                 File[] childs = dirs.get(i).listFiles();
-                for(int j=0; j<childs.length; j++) {
-                    if(childs[j].isDirectory()) {
-                        dirs.add(childs[j]);
-                    } else if(childs[j].getName().endsWith(".java")) {
-                        files.add(childs[j]);
+                for(File child:childs) {
+                    if(child.isDirectory()) {
+                        dirs.add(child);
+                    } else if(child.getName().endsWith(".java")) {
+                        files.add(child);
                     }
                 }
-                i++;
             }
-            i=0;
-            while(i<files.size()) {
-                System.out.println(files.get(i).getAbsolutePath()+" "+
-                        files.get(i).getName() );
-                i++;
-            }
+            for(File f : files)
+                System.out.println(f.getAbsolutePath()+" "+f.getName() );
 
 
             FileWriter commonFW = new FileWriter(fOutputDir.getAbsolutePath()
                     + File.separator + "complete-diag.uml");
             commonFW.write("@startuml img/default.png\n");
 
-            for(i=0; i<files.size(); i++) {
-                FileInputStream fis = new FileInputStream(files.get(i));
+            for(File f:files) {
+                FileInputStream fis = new FileInputStream(f);
                 AbstractBuilder builder = new FromJavaBuilder();
                 ContextDescriber context = builder.buildFromStream(fis);
-                String umlFileName = fOutputDir.getAbsolutePath()
-                        +File.separator + "class" + File.separator;
-                umlFileName += (files.get(i).getName().replace(".java", ".iuml"));
-                FileWriter fw = new FileWriter(umlFileName);
-                BufferedWriter out = new BufferedWriter(fw);
-                context.writeUML(out);
-                out.close();
-
+                File fOut = new File(fClassDir, f.getName().replace(".java", ".iuml"));
+                FileWriter fw = new FileWriter(fOut);
+                BufferedWriter bw = new BufferedWriter(fw);
+                context.writeUML(bw);
+                bw.close();
                 
                 commonFW.write("!include "+ "class"+File.separator + 
-                        files.get(i).getName().replace(".java", ".iuml") +"\n");
+                        f.getName().replace(".java", ".iuml") +"\n");
             }
 
             // Create an empty file for user modifications

@@ -1,12 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package java2plant.builder;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java2plant.describer.ArgumentDescriber;
 import java2plant.describer.ClassDescriber;
 import java2plant.describer.ContextDescriber;
@@ -23,15 +21,116 @@ public class FromJavaBuilder extends AbstractBuilder {
     @Override
     public ContextDescriber buildFromStream(InputStream inputStream) {
         this.is = inputStream;
-        this.cd = new ContextDescriber();
+        this.contextDescriber = new ContextDescriber();
+        String str = "";
+        while(str != "jfdudsjlkfhdsjf") {
+            str = getNextDecla(is);
+            System.out.println(str);
+        } 
 
-        parseFile(this.cd);
+        parseFile(this.contextDescriber);
 
-        return cd;
+        return contextDescriber;
+    }
+
+    /**
+     * This method does the same as String.split but also removes the empty strings
+     * from the result array.
+     * @param str  A String to split
+     * @param regex A regular expression corresponding to a separator
+     * @return array of splited String
+     */
+    public static String[] splitString(String str, String regex) {
+        String[] split = str.split(regex);
+        int count = 0;
+        
+        for(String s:split) {
+            if(!s.isEmpty()) {
+                count++;
+            }
+        }
+
+        String[] result = new String[count];
+        count=0;
+
+        for(String s:split) {
+            if(!s.isEmpty()) {
+                result[count] = s;
+                count++;
+            }
+        }
+
+        return result;
     }
 
     public boolean isSeparator( int c) {
         return c == ';' || c == '}' || c == '{';
+    }
+
+    public String getNextDecla(InputStream is) {
+        String str = "";
+        try {
+            int cOld = 0;
+            int cNew = 0;
+            boolean parsing = true;
+            int openedBraces = 0;
+
+            cNew =  is.read();
+            if(cNew == -1) {
+                throw new EOFException();
+            }
+
+            while(parsing) {
+                cOld = cNew;
+                cNew = is.read();
+                if(cNew == '\"' && cOld != '\\') {
+                    cOld = cNew;
+                    cNew = is.read();
+                    while(cNew != '\"' || cOld == '\\') {
+                        cOld = cNew;
+                        cNew = is.read();
+                    }
+
+                } else if(cNew == '\'' && cOld != '\\') {
+                    cOld = cNew;
+                    cNew = is.read();
+                    while(cNew != '\'' || cOld == '\\') {
+                        cOld = cNew;
+                        cNew = is.read();
+                    }
+                } else if( cOld == '/' && cNew == '*') {
+                    while( cOld != '*' || cNew != '/') {
+                        cOld = cNew;
+                        cNew = is.read();
+                    }
+                    
+                } else if( cOld == '/' && cNew == '/' ) {
+                    while( cNew != '\n' ) {
+                        cOld = cNew;
+                        cNew = is.read();
+                    }
+                } else {
+                    str += (char) cOld;
+                    if(cNew == '{') {
+                        openedBraces++;
+                    } else if(cNew == '}') {
+                        openedBraces--;
+                        if(openedBraces == 0) {
+                            parsing = false;
+                        }
+                    } else if(cNew == ';' && openedBraces == 0) {
+                        parsing = false;
+                    }
+                }
+                    
+            }
+            str += (char) cNew;
+            
+
+        } catch (IOException ex) {
+            Logger.getLogger(FromJavaBuilder.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return str;
     }
 
     
@@ -87,11 +186,9 @@ public class FromJavaBuilder extends AbstractBuilder {
         try {
             while(true) {
                 String str = getNext();
-                System.out.println( str );
                 if( str.contains("package ")) {
-                    String[] split = str.split(" ");
+                    String[] split = splitString(str, " ");
                     for( int i=0 ; i< split.length ; i++ ) {
-                        System.out.println( split[i] );
                         if( split[i].contentEquals("package") ) {
                             cd.setNamespace( split[i+1]);
                         }
@@ -99,7 +196,7 @@ public class FromJavaBuilder extends AbstractBuilder {
                 } else if (str.contains(" class ")) {
                     ClassDescriber c = new ClassDescriber();
                     cd.addClass(c);
-                    String[] split = str.split(" ");
+                    String[] split = splitString(str, " ");
                     
                     for( int i=0 ; i< split.length ; i++ ) {
                         if(split[i].equals("public") || split[i].equals("private") ||
@@ -115,11 +212,10 @@ public class FromJavaBuilder extends AbstractBuilder {
                     
                     parseClass(c);
                     
-                    c.print();
                    } else if (str.contains(" interface ")) {
                     InterfaceDescriber c = new InterfaceDescriber();
                     cd.addClass(c);
-                    String[] split = str.split(" ");
+                    String[] split = splitString(str, " ");
                     
                     for( int i=0 ; i< split.length ; i++ ) {
                         if(split[i].equals("public") || split[i].equals("private") ||
@@ -132,8 +228,6 @@ public class FromJavaBuilder extends AbstractBuilder {
                     }
                     
                     parseClass(c);
-                    
-                    c.print(); 
                 } else {
 
                 }
@@ -142,13 +236,17 @@ public class FromJavaBuilder extends AbstractBuilder {
         }
     }
 
+    public ClassDescriber buildClassFromString(String str) {
+        ClassDescriber cd = new ClassDescriber();
+
+        return cd;
+    }
+
     public void parseClass(ClassDescriber classDescriber) {
         boolean parsingClass = true;
         try {
             while(parsingClass) {
                 String str = getNext();
-                System.out.println("ClassParser : "+str);
-                
                 
                 if(str.endsWith("}")) {
                     parsingClass = false;
@@ -156,7 +254,7 @@ public class FromJavaBuilder extends AbstractBuilder {
                     //TODO: Move to FieldDescriptor
                     FieldDescriber fd = new FieldDescriber();
                     
-                    String[] split = str.split(" ");
+                    String[] split = splitString(str, " ");
                     int i=0;
                     while(i < split.length ) {
                         if(split[i].isEmpty()) {
@@ -181,6 +279,8 @@ public class FromJavaBuilder extends AbstractBuilder {
                     classDescriber.addMethod(md);
                 }
                 
+
+                //TODO: clean up that mess
                 if(str.endsWith("{")) {
                     int openedBraces = 1;
                     boolean openedDoubleQuotes = false;
@@ -261,7 +361,7 @@ public class FromJavaBuilder extends AbstractBuilder {
 
         str = str.substring(str.indexOf("(")+1, str.indexOf(")"));
         if(!str.isEmpty()) {
-            split = str.split(",");
+            split = splitString(str, ",");
             for(int j=0; j<split.length; j++) {
                 ArgumentDescriber arg = new ArgumentDescriber(split[j]);
                 md.addArg(arg);
