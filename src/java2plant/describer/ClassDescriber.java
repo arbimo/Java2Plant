@@ -4,14 +4,8 @@
  */
 package java2plant.describer;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -99,52 +93,7 @@ public class ClassDescriber {
         this.inheritances.add(inheritance);
     }
 
-    void writeUML(File fOutputDir) {
-        BufferedWriter bw = null;
-        try {
-            String filename = fOutputDir.getAbsolutePath() + File.separator;
-            filename += "classes" + File.separator + this.getName() + ".iuml";
-            File f = new File(filename);
-            f.getParentFile().mkdirs();
-            bw = new BufferedWriter(new FileWriter(filename));
-            
-            if (!this.pack.isEmpty()) {
-                bw.write("package " + this.pack);
-                bw.newLine();
-            }
-            if (isAbstract()) {
-                bw.write("abstract ");
-            }
-            if(isInterface) {
-                bw.write("interface" + this.name + " {");
-            } else {
-                bw.write("class " + this.name + " {");
-            }
-            bw.newLine();
-            for (Iterator it = getFields().iterator(); it.hasNext();) {
-                FieldDescriber fd = (FieldDescriber) it.next();
-                fd.writeUML(bw);
-            }
-            for (Iterator it = getMethods().iterator(); it.hasNext();) {
-                MethodDescriber md = (MethodDescriber) it.next();
-                md.writeUML(bw);
-            }
-            bw.write("}");
-            bw.newLine();
-            if (!this.pack.isEmpty()) {
-                bw.write("end package");
-                bw.newLine();
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(ClassDescriber.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                bw.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ClassDescriber.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
+    
 
     public boolean isInterface() {
         return isInterface;

@@ -56,49 +56,8 @@ public class ContextDescriber {
         return result;
     }
 
-    public ClassDescriber findClass(String name) {
-        for(ClassDescriber c:classes) {
-            if(name.equals(c.getName())) {
-                return c;
-            }
-        }
-        return null;
-    }
-
-    public void writeUML(File fOutputDir) {
-        FileWriter commonFW = null;
-        try {
-            fOutputDir.mkdirs();
-
-            commonFW = new FileWriter(fOutputDir.getAbsolutePath()
-                    + File.separator + "complete-diag.uml");
-            commonFW.write("@startuml img/default.png\n");
-
-            for(Iterator it = classes.iterator(); it.hasNext() ;) {
-                ClassDescriber cd = (ClassDescriber) it.next();
-                cd.writeUML(fOutputDir);
-                commonFW.write("!include " + "classes" + File.separator + 
-                        cd.getName() +".iuml\n");
-            }
-
-            // Create an empty file for user modifications
-            File fRelations = new File(fOutputDir, "relations.iuml");
-            if(!fRelations.exists()) {
-                fRelations.createNewFile();
-            }
-            commonFW.write("!include "+ "relations.iuml\n");
-            
-            commonFW.write("@enduml\n");
-
-        } catch (IOException ex) {
-            Logger.getLogger(ContextDescriber.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                commonFW.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ContextDescriber.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+    public ArrayList<ClassDescriber> getClasses() {
+        return classes;
     }
 
     public String getNamespace() {

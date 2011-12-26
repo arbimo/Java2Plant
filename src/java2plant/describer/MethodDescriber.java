@@ -76,29 +76,6 @@ public class MethodDescriber {
         System.out.println("");
     }
 
-    void writeUML(BufferedWriter bw) {
-        try {
-            this.visibility.writeUML(bw);
-            bw.write(" "+ this.name + "(");
-            for(Iterator it = getArgs().iterator(); it.hasNext() ;) {
-                ArgumentDescriber arg = (ArgumentDescriber) it.next();
-                arg.writeUML(bw);
-                if(it.hasNext()) {
-                    bw.write(", ");
-                }
-            }
-            if(this.returnType.equals("void")) {
-                bw.write(")");
-            } else {
-                bw.write("):"+this.returnType);
-            }
-            bw.newLine();
-
-        } catch (IOException ex) {
-            Logger.getLogger(MethodDescriber.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     public void addArg(ArgumentDescriber arg) {
         this.getArgs().add(arg);
     }

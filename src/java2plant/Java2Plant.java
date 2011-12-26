@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import java2plant.builder.AbstractBuilder;
 import java2plant.builder.FromJavaBuilder;
 import java2plant.builder.FromPlantBuilder;
+import java2plant.writer.PlantWriter;
 import javax.swing.JFileChooser;
 
 /**
@@ -48,7 +49,8 @@ public class Java2Plant {
         
         FromJavaBuilder fjb = new FromJavaBuilder();
         ContextDescriber cd = fjb.build(fInputDir, fOutputDir);
-        cd.writeUML(fOutputDir);
+        PlantWriter pw = new PlantWriter(ContextDescriber.getInstance());
+        pw.write(fOutputDir);
         
     }
 

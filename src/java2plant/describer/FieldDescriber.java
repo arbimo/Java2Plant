@@ -4,27 +4,22 @@
  */
 package java2plant.describer;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author arthur
  */
 public class FieldDescriber {
 
-    private Visibility visibility;
-    private String name;
-    private String type;
-
-    public FieldDescriber() {
-        this.visibility = new Visibility("private");
-    }
+    private Visibility visibility = new Visibility("private");;
+    private String name = "";
+    private String type = "";
 
     public void setVisibility(String vis) {
         this.visibility = new Visibility(vis);
+    }
+
+    public Visibility getVisibility() {
+        return visibility;
     }
 
     public void setName(String name) {
@@ -47,13 +42,4 @@ public class FieldDescriber {
         System.out.println("Field : " + visibility +" "+type+" "+name);
     }
 
-    void writeUML(BufferedWriter fw) {
-        try {
-            this.visibility.writeUML(fw);
-            fw.write(" " + this.name + ":" + this.type);
-            fw.newLine();
-        } catch (IOException ex) {
-            Logger.getLogger(FieldDescriber.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
 }

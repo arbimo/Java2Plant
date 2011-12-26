@@ -37,12 +37,5 @@ public class ArgumentDescriber {
         return type+" "+name;
     }
 
-    void writeUML(BufferedWriter bw) {
-        try {
-            bw.write(this.name + ":" + this.type);
-        } catch (IOException ex) {
-            Logger.getLogger(ArgumentDescriber.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
     
 }

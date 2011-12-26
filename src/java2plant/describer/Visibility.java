@@ -42,25 +42,6 @@ public class Visibility {
         return this.visibility;
     }
 
-    public void writeUML(BufferedWriter bw) {
-        String result;
-        if( visibility.equals("public")) {
-            result = "+";
-        }
-        else if( visibility.equals("protected")) {
-            result = "#";
-        }
-        else if( visibility.equals("package")) {
-            result = "~";
-        }
-        else {
-            result = "-";
-        }
-        try {
-            bw.write(result);
-        } catch (IOException ex) {
-            Logger.getLogger(Visibility.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+    
         
 }
