@@ -119,8 +119,6 @@ public class FromJavaBuilder extends AbstractBuilder {
     }
                                                                    
     
-
-
 public String getNext(InputStream is) { 
     String str = "";
         try {
@@ -141,6 +139,10 @@ public String getNext(InputStream is) {
                     cOld = cNew;
                     cNew = is.read();
                     while(cNew != '\"' || cOld == '\\') {
+                        if(cOld == '\\') {
+                            //dont take care of the escaped char
+                            cNew = ' ';
+                        }
                         cOld = cNew;
                         cNew = is.read();
                     }
@@ -151,6 +153,10 @@ public String getNext(InputStream is) {
                     cOld = cNew;
                     cNew = is.read();
                     while(cNew != '\'' || cOld == '\\') {
+                        if(cOld == '\\') {
+                            //dont take care of the escaped char
+                            cNew = ' ';
+                        }
                         cOld = cNew;
                         cNew = is.read();
                     }
@@ -172,21 +178,19 @@ public String getNext(InputStream is) {
                     cOld = cNew;
                     cNew = is.read();
                 } else {
-                    str += (char) cOld;
                     if(cNew == -1) {
                         parsing=false;
                     } else if(cNew == '{') {
                         openedBraces++;
-                        System.out.println("++ " + str + (char) cNew+"\n\n");
                     } else if(cNew == '}') {
                         openedBraces--;
-                        System.out.println("-- " + str + (char) cNew + "\n\n");
                         if(openedBraces == 0) {
                             parsing = false;
                         }
                     } else if(cNew == ';' && openedBraces == 0) {
                         parsing = false;
                     }
+                    str += (char) cOld;
                 }
                 
             }

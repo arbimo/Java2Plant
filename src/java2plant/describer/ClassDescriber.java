@@ -131,8 +131,8 @@ public class ClassDescriber {
         return inheritances;
     }
 
-    public void addInheritance(ArrayList<String> inheritances) {
-        this.inheritances = inheritances;
+    public void addInheritance(String inheritance) {
+        this.inheritances.add(inheritance);
     }
 
 }

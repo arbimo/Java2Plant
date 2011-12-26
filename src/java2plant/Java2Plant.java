@@ -33,7 +33,6 @@ public class Java2Plant {
             ContextDescriber cd =fpb.buildFromFile(fPlant);
             System.out.println("Fini");
             
-            /*
             if(args.length == 2) {
                 fInputDir = new File(args[0]);
                 fOutputDir = new File(args[1]);
@@ -45,8 +44,9 @@ public class Java2Plant {
                 fc.showDialog(null, "Choose the output directory");
                 fOutputDir= fc.getSelectedFile();
             }
-             */
 
+            FromJavaBuilder fjb = new FromJavaBuilder();
+            fjb.build(fInputDir, fOutputDir);
             
     }
 

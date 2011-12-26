@@ -115,7 +115,7 @@ public class FromPlantBuilder extends AbstractBuilder {
                         cd.addField(field);
                     }
                 } else {
-                    parseRelations(line))
+                    parseRelations(line);
                 }
             }
         } catch (IOException ex) {
