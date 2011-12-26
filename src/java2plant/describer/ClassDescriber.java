@@ -18,19 +18,14 @@ import java.util.logging.Logger;
 
 public class ClassDescriber {
 
-    protected String name;
-    protected Visibility visibility;
-    protected String pack="";
-    private boolean isAbstract;
+    protected String name = "";
+    protected Visibility visibility = new Visibility("private");
+    protected String pack = "";
+    private boolean isAbstract = false;
 
-    protected ArrayList<FieldDescriber> fields = new ArrayList();
-    protected ArrayList<MethodDescriber> methods = new ArrayList();
-
-    public ClassDescriber() {
-        this.visibility = new Visibility("private");
-        this.isAbstract = false;
-        this.pack = "";
-    }
+    private ArrayList<FieldDescriber> fields = new ArrayList();
+    private ArrayList<MethodDescriber> methods = new ArrayList();
+    private ArrayList<String> inheritances = new ArrayList();
 
     public void setName(String name) {
         this.name = name;
@@ -52,11 +47,11 @@ public class ClassDescriber {
         System.out.println("Class : ");
         System.out.println("Name : " + name);
         System.out.println("Visibility : " + visibility);
-        for(Iterator it = fields.iterator(); it.hasNext() ;) {
+        for(Iterator it = getFields().iterator(); it.hasNext() ;) {
             FieldDescriber fd = (FieldDescriber) it.next();
             fd.print();
         }
-        for(Iterator it = methods.iterator(); it.hasNext() ;) {
+        for(Iterator it = getMethods().iterator(); it.hasNext() ;) {
             MethodDescriber md= (MethodDescriber) it.next();
             md.print();
         }
@@ -64,11 +59,11 @@ public class ClassDescriber {
     }
 
     public void addField(FieldDescriber fd) {
-        this.fields.add(fd);
+        this.getFields().add(fd);
     }
 
     public void addMethod(MethodDescriber md) {
-        this.methods.add(md);
+        this.getMethods().add(md);
     }
 
     public String getPackage() {
@@ -81,29 +76,32 @@ public class ClassDescriber {
 
     void writeUML(BufferedWriter fw) {
         try {
-            /*
             if(!this.pack.isEmpty()) {
                 fw.write(this.pack+"."+this.name +" as "+this.name);
                 fw.newLine();
             }
-            */
             if(isAbstract()) {
                 fw.write("abstract ");
             }
             fw.write("class " + this.name  + " {");
             fw.newLine();
 
-            for(Iterator it = fields.iterator(); it.hasNext() ;) {
+            for(Iterator it = getFields().iterator(); it.hasNext() ;) {
                 FieldDescriber fd = (FieldDescriber) it.next();
                 fd.writeUML(fw);
             }
-            for(Iterator it = methods.iterator(); it.hasNext() ;) {
+            for(Iterator it = getMethods().iterator(); it.hasNext() ;) {
                 MethodDescriber md= (MethodDescriber) it.next();
                 md.writeUML(fw);
             }
 
             fw.write("}");
             fw.newLine();
+            
+            if(!this.pack.isEmpty()) {
+                fw.write("end package");
+                fw.newLine();
+            }
 
             
         } catch (IOException ex) {
@@ -119,6 +117,22 @@ public class ClassDescriber {
 
     public void setAbstract(boolean isAbstract) {
         this.isAbstract = isAbstract;
+    }
+
+    public ArrayList<FieldDescriber> getFields() {
+        return fields;
+    }
+
+    public ArrayList<MethodDescriber> getMethods() {
+        return methods;
+    }
+
+    public ArrayList<String> getInheritances() {
+        return inheritances;
+    }
+
+    public void addInheritance(ArrayList<String> inheritances) {
+        this.inheritances = inheritances;
     }
 
 }

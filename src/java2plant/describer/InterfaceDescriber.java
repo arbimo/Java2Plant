@@ -23,7 +23,7 @@ public class InterfaceDescriber extends ClassDescriber {
             fw.write("interface " + this.name  + " {");
             fw.newLine();
 
-            for(Iterator it = methods.iterator(); it.hasNext() ;) {
+            for(Iterator it = getMethods().iterator(); it.hasNext() ;) {
                 MethodDescriber md= (MethodDescriber) it.next();
                 md.writeUML(fw);
             }

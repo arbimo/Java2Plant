@@ -14,27 +14,8 @@ import java.util.logging.Logger;
  * @author arthur
  */
 public class ArgumentDescriber {
-    private String type;
-    private String name;
-
-    public ArgumentDescriber(String str) {
-        String[] split = str.split(" ");
-        int i=0;
-        while(i<split.length && split[i].isEmpty()) {
-            i++;
-        }
-        this.type = split[i];
-        i++;
-        while(i<split.length && split[i].isEmpty()) {
-            i++;
-        }
-        this.name = split[i];
-    }
-
-    ArgumentDescriber(String type, String name) {
-        this.type = type;
-        this.name = name;
-    }
+    private String type = "";
+    private String name = "";
 
     public String getType() {
         return type;

@@ -31,18 +31,24 @@ public class ContextDescriber {
         classes.add(c);
     }
 
-    public void writeUML(BufferedWriter fw) {
-        try {
-            fw.write("package "+ this.namespace);
-            fw.newLine();
-            for(Iterator it = classes.iterator(); it.hasNext() ;) {
-                ClassDescriber cd = (ClassDescriber) it.next();
-                cd.writeUML(fw);
+    public ClassDescriber findClass(String name) {
+        for(ClassDescriber c:classes) {
+            if(name.equals(c.getName())) {
+                return c;
             }
-            fw.write("end package");
-            fw.newLine();
-        } catch (IOException ex) {
-            Logger.getLogger(ContextDescriber.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        for(ClassDescriber c:interfaces) {
+            if(name.equals(c.getName())) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    public void writeUML(BufferedWriter fw) {
+        for(Iterator it = classes.iterator(); it.hasNext() ;) {
+            ClassDescriber cd = (ClassDescriber) it.next();
+            cd.writeUML(fw);
         }
     }
 

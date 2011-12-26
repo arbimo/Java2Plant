@@ -19,10 +19,10 @@ import java.util.logging.Logger;
 
 public class MethodDescriber {
 
-    private Visibility visibility;
-    private String returnType;
-    private String name;
-    private boolean isAbstract;
+    private Visibility visibility = new Visibility("private");
+    private String returnType = "";
+    private String name = "";
+    private boolean isAbstract = false;
     private ArrayList<ArgumentDescriber> args = new ArrayList();
 
     public MethodDescriber() {
@@ -62,10 +62,14 @@ public class MethodDescriber {
         this.isAbstract = isAbstract;
     }
 
+    public ArrayList<ArgumentDescriber> getArgs() {
+        return args;
+    }
+
     public void print() {
         System.out.println("Method : " + visibility +" "+returnType+" "+name);
         System.out.print("-- Args : ");
-        for(Iterator it = args.iterator(); it.hasNext() ;) {
+        for(Iterator it = getArgs().iterator(); it.hasNext() ;) {
             ArgumentDescriber arg = (ArgumentDescriber) it.next();
             System.out.print(arg);
         }
@@ -76,7 +80,7 @@ public class MethodDescriber {
         try {
             this.visibility.writeUML(bw);
             bw.write(this.name+"(");
-            for(Iterator it = args.iterator(); it.hasNext() ;) {
+            for(Iterator it = getArgs().iterator(); it.hasNext() ;) {
                 ArgumentDescriber arg = (ArgumentDescriber) it.next();
                 arg.writeUML(bw);
                 if(it.hasNext()) {
@@ -96,7 +100,8 @@ public class MethodDescriber {
     }
 
     public void addArg(ArgumentDescriber arg) {
-        this.args.add(arg);
+        this.getArgs().add(arg);
     }
+
 
 }
