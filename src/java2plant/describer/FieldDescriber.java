@@ -50,7 +50,7 @@ public class FieldDescriber {
     void writeUML(BufferedWriter fw) {
         try {
             this.visibility.writeUML(fw);
-            fw.write(this.name+":"+this.type);
+            fw.write(" " + this.name + ":" + this.type);
             fw.newLine();
         } catch (IOException ex) {
             Logger.getLogger(FieldDescriber.class.getName()).log(Level.SEVERE, null, ex);

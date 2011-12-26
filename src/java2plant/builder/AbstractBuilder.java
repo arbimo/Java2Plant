@@ -14,7 +14,7 @@ import java2plant.describer.ContextDescriber;
 abstract public class AbstractBuilder {
     
     protected InputStream is;
-    protected ContextDescriber contextDescriber;
+    protected ContextDescriber context;
     
     public abstract ContextDescriber buildFromStream(InputStream inputStream);
 
@@ -49,7 +49,7 @@ abstract public class AbstractBuilder {
     }
     
     public static String[] splitString(String str) {
-        return splitString(str, "[ \n\t]");
+        return splitString(str, "[ \n\t;{}]");
     }
 
 }

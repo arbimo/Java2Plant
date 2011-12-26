@@ -1,10 +1,8 @@
 package java2plant.builder;
 
-import java.io.BufferedWriter;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -14,8 +12,8 @@ import java2plant.describer.ArgumentDescriber;
 import java2plant.describer.ClassDescriber;
 import java2plant.describer.ContextDescriber;
 import java2plant.describer.FieldDescriber;
-import java2plant.describer.InterfaceDescriber;
 import java2plant.describer.MethodDescriber;
+import java2plant.describer.Visibility;
 
 /**
  *
@@ -23,12 +21,12 @@ import java2plant.describer.MethodDescriber;
  */
 public class FromJavaBuilder extends AbstractBuilder {
 
+    public FromJavaBuilder() {
+        this.context = ContextDescriber.getInstance();
+    }
+
     public ContextDescriber build(File fInputDir, File fOutputDir) {
         try {
-            fOutputDir.mkdirs();
-            File fClassDir = new File(fOutputDir, "class");
-            fClassDir.mkdirs();
-
             ArrayList<File> files = new ArrayList();
             ArrayList<File> dirs = new ArrayList();
             
@@ -43,7 +41,7 @@ public class FromJavaBuilder extends AbstractBuilder {
                 for(File child:childs) {
                     if(child.isDirectory()) {
                         dirs.add(child);
-                    } else if(child.getName().endsWith("FromJavaBuilder.java")) {
+                    } else if(child.getName().endsWith(".java")) {
                         files.add(child);
                     }
                 }
@@ -51,48 +49,23 @@ public class FromJavaBuilder extends AbstractBuilder {
             for(File f : files)
                 System.out.println(f.getAbsolutePath()+" "+f.getName() );
 
-
-            FileWriter commonFW = new FileWriter(fOutputDir.getAbsolutePath()
-                    + File.separator + "complete-diag.uml");
-            commonFW.write("@startuml img/default.png\n");
-
             for(File f:files) {
                 FileInputStream fis = new FileInputStream(f);
                 AbstractBuilder builder = new FromJavaBuilder();
-                ContextDescriber context = builder.buildFromStream(fis);
-                File fOut = new File(fClassDir, f.getName().replace(".java", ".iuml"));
-                FileWriter fw = new FileWriter(fOut);
-                BufferedWriter bw = new BufferedWriter(fw);
-                context.writeUML(bw);
-                bw.close();
-                
-                commonFW.write("!include "+ "class"+File.separator + 
-                        f.getName().replace(".java", ".iuml") +"\n");
+                builder.buildFromStream(fis);
             }
-
-            // Create an empty file for user modifications
-            File fRelations = new File(fOutputDir, "relations.iuml");
-            if(!fRelations.exists()) {
-                fRelations.createNewFile();
-            }
-            commonFW.write("!include "+ "relations.iuml\n");
             
-            commonFW.write("@enduml\n");
-            commonFW.close();
-            
-
         } catch (Exception ex) {
             Logger.getLogger(FromJavaBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        return contextDescriber;
+        return context;
 
     }
 
     @Override
     public ContextDescriber buildFromStream(InputStream inputStream) {
         this.is = inputStream;
-        this.contextDescriber = new ContextDescriber();
         
         String str = getNext(is);
         String decla = extractDeclaration(str);
@@ -102,20 +75,20 @@ public class FromJavaBuilder extends AbstractBuilder {
                 String[] split = splitString(decla);
                 for( int i=0 ; i< split.length ; i++ ) {
                     if( split[i].contentEquals("package") ) {
-                        contextDescriber.setNamespace(split[i+1]);
+                        context.setNamespace(split[i+1]);
                     }
                 }
             } else if (decla.contains(" class ")) {
-                ClassDescriber c = buildClassFromString(str);
-                contextDescriber.addClass(c);
+                buildClassFromString(str);
+                //TODO: pas constistant avec le reste (pas de add)
             } else if (str.contains(" interface ")) {
-                //TODO
+                buildClassFromString(str);
             }
             str = getNext(is);
             decla = extractDeclaration(str);
         }
         
-        return contextDescriber;
+        return context;
     }
                                                                    
     
@@ -214,10 +187,8 @@ public String getNext(String src) {
                 char c = src.charAt(i);
                 if(c=='{') {
                     openedBraces++;
-                    System.out.println("++" + src.charAt(i-1) + src.charAt(i));
                 } else if(c=='}') {
                     openedBraces--;
-                    System.out.println("--" + src.charAt(i-1) + src.charAt(i));
                 }
                 i++;
             }
@@ -229,16 +200,24 @@ public String getNext(String src) {
 
     public String extractDeclaration(String str) {
         String declaration = "";
-        if(str.indexOf(";") != -1 && str.indexOf(";") < str.indexOf("{")) {
+        if(str.indexOf(";") != -1 && str.indexOf("{") != -1) {
+            if(str.indexOf(";") < str.indexOf("{")) {
+                declaration = str.substring(0, str.indexOf(";")+1);
+            } else {
+                declaration = str.substring(0, str.indexOf("{")+1);
+            }
+        } else if(str.indexOf("{") == -1) { 
             declaration = str.substring(0, str.indexOf(";")+1);
-        } else if(str.indexOf("{") != -1) {
+        } else if(str.indexOf(";") == -1) {
             declaration = str.substring(0, str.indexOf("{")+1);
         }
         return declaration;
     }
 
     public ClassDescriber buildClassFromString(String str) {
-        ClassDescriber cd = new ClassDescriber();
+        ClassDescriber cd = null;
+        String vis = "private";
+        boolean isAbstract = false;
 
         String declaration = extractDeclaration(str);
         String split[] = splitString(extractDeclaration(str), " ");
@@ -246,14 +225,22 @@ public String getNext(String src) {
         for( int i=0 ; i< split.length ; i++ ) {
             if(split[i].equals("public") || split[i].equals("private") ||
                     split[i].equals("protected") || split[i].equals("package")) {
-                cd.setVisibility(split[i]);
+                vis = split[i];
             } else if(split[i].equals("abstract")) {
-                cd.setAbstract(true);
+                isAbstract = true;
             } else if(split[i].equals("class")) {
                 i++;
-                cd.setName(split[i]);
+                cd = context.getClass(split[i]);
+                cd.setPackage(context.getNamespace());
+            } else if(split[i].equals("interface")) {
+                i++;
+                cd = context.getClass(split[i]);
+                cd.setInterface(true);
             }
         }
+        cd.setPackage(context.getNamespace());
+        cd.setVisibility(vis);
+        cd.setAbstract(isAbstract);
 
         if(declaration.endsWith("{")) {
             str = str.substring(declaration.length(), str.lastIndexOf("}"));

@@ -15,7 +15,6 @@ import java2plant.describer.ArgumentDescriber;
 import java2plant.describer.ClassDescriber;
 import java2plant.describer.ContextDescriber;
 import java2plant.describer.FieldDescriber;
-import java2plant.describer.InterfaceDescriber;
 import java2plant.describer.MethodDescriber;
 import java2plant.describer.Visibility;
 
@@ -26,7 +25,7 @@ import java2plant.describer.Visibility;
 public class FromPlantBuilder extends AbstractBuilder {
 
     public FromPlantBuilder() {
-        contextDescriber = new ContextDescriber();
+        context = ContextDescriber.getInstance();
     }
 
     @Override
@@ -45,37 +44,36 @@ public class FromPlantBuilder extends AbstractBuilder {
                 } else if(line.startsWith("package")) {
                     System.out.println(line);
                     String[] split = splitString(line);
-                    contextDescriber.setNamespace(split[1]);
+                    context.setNamespace(split[1]);
                 } else if(line.contains("end") && line.contains("package")) {
-                    contextDescriber.setNamespace("");
+                    context.setNamespace("");
                 } else if(line.startsWith("!include")) {
                     String[] split = splitString(line);
                     buildFromFile(new File(inputFile.getParentFile(), split[1]));
                 } else if(line.contains("{")) {
                     if(line.contains("class") || line.contains("interface")) {
-                        cd = new ClassDescriber();
+                        boolean isAbstract = false;
                         String[] split = splitString(line);
                         for(int i=0; i<split.length; i++) {
                             if("abstract".equals(split[i])) {
-                                cd.setAbstract(true);
+                                isAbstract = true;
                             } else if("class".equals(split[i])) {
                                 i++;
-                                cd.setName(split[i]);
+                                cd = context.getClass(split[i]);
                             } else if("interface".equals(split[i])) {
                                 i++;
-                                cd = new InterfaceDescriber();
-                                cd.setName(split[i]);
+                                cd = context.getClass(split[i]);
+                                cd.setInterface(true);
                             } else {
                                 Logger.getLogger(FromPlantBuilder.class.getName()).log(Level.SEVERE, null);
                             }
                         }
+                        cd.setPackage(context.getNamespace());
+                        cd.setAbstract(isAbstract);
                     } else {
                         Logger.getLogger(FromPlantBuilder.class.getName()).log(Level.SEVERE, null);
                     }
                 } else if(line.contains("}")) {
-                    if(cd != null && !cd.getName().isEmpty()) {
-                        contextDescriber.addClass(cd);
-                    }
                     cd = null;
                 } else if(line.startsWith("+") || line.startsWith("#") 
                         || line.startsWith("~") || line.startsWith("-")) {
@@ -123,7 +121,7 @@ public class FromPlantBuilder extends AbstractBuilder {
         }
 
 
-        return contextDescriber;
+        return context;
     }
 
     private void parseRelations(String line) {

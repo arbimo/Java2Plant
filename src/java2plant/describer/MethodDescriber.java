@@ -79,7 +79,7 @@ public class MethodDescriber {
     void writeUML(BufferedWriter bw) {
         try {
             this.visibility.writeUML(bw);
-            bw.write(this.name+"(");
+            bw.write(" "+ this.name + "(");
             for(Iterator it = getArgs().iterator(); it.hasNext() ;) {
                 ArgumentDescriber arg = (ArgumentDescriber) it.next();
                 arg.writeUML(bw);
