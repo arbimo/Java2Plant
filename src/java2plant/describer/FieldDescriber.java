@@ -10,7 +10,7 @@ package java2plant.describer;
  */
 public class FieldDescriber {
 
-    private Visibility visibility = new Visibility("private");;
+    private Visibility visibility = new Visibility("private");
     private String name = "";
     private String type = "";
 

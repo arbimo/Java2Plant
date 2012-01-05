@@ -4,13 +4,7 @@
  */
 package java2plant.describer;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -56,6 +50,17 @@ public class ContextDescriber {
         return result;
     }
 
+    public boolean classExists(String className) {
+        boolean result = false;
+        for(ClassDescriber c:classes) {
+            if(className.equals(c.getName())) {
+                result = true;
+            }
+        } 
+
+        return result;
+    }
+
     public ArrayList<ClassDescriber> getClasses() {
         return classes;
     }
@@ -63,6 +68,5 @@ public class ContextDescriber {
     public String getNamespace() {
         return this.namespace;
     }
-
     
 }

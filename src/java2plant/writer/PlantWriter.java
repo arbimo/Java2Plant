@@ -23,14 +23,16 @@ import java2plant.describer.Visibility;
  *
  * @author arthur
  */
-public class PlantWriter {
+public class PlantWriter extends AbstractWriter {
 
     private final ContextDescriber context;
+    private ArrayList<Relation> relations = new ArrayList();
 
     public PlantWriter(ContextDescriber context) {
         this.context = context;
     }
     
+    @Override
     public void write(File fOutputDir) {
         FileWriter commonFW = null;
         try {
@@ -52,9 +54,10 @@ public class PlantWriter {
             if(!fRelations.exists()) {
                 fRelations.createNewFile();
             }
-            commonFW.write("!include "+ "relations.iuml\n");
+            commonFW.write("!include "+ "relations.iuml\n\n");
+            writeRelations(commonFW);
             
-            commonFW.write("@enduml\n");
+            commonFW.write("\n@enduml\n");
             
         } catch (IOException ex) {
             Logger.getLogger(ContextDescriber.class.getName()).log(Level.SEVERE, null, ex);
@@ -66,8 +69,38 @@ public class PlantWriter {
             }
         }
     }
+
+    public boolean relationExists(String class1, String class2) {
+        for(Relation r: relations) {
+            if(class1.equals(r.getClass1()) && class2.equals(r.getClass2())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public void addRelation(String class1, String class2) {
+        if(class2.contains("<") && class2.indexOf(">") > class2.indexOf("<")) {
+            class2 = class2.substring(class2.indexOf("<")+1, class2.indexOf(">"));
+        }
+        if(context.classExists(class1) && context.classExists(class2)) {
+            if(!relationExists(class1, class2)) {
+                relations.add(new Relation(class1, class2));
+            }
+        }
+        
+    }
+
+    public void writeRelations(FileWriter fw) {
+        for(Relation r : relations) {
+            try {
+                fw.write(r.getClass1() + " --> " + r.getClass2() + "\n");
+            } catch (IOException ex) {
+                Logger.getLogger(PlantWriter.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
     
-    void writeClass(ClassDescriber c, File fOutputDir) {
+    public void writeClass(ClassDescriber c, File fOutputDir) {
         BufferedWriter bw = null;
         try {
             String filename = fOutputDir.getAbsolutePath() + File.separator;
@@ -84,19 +117,28 @@ public class PlantWriter {
                 bw.write("abstract ");
             }
             if(c.isInterface()) {
-                bw.write("interface" + c.getName() + " {");
+                bw.write("interface " + c.getName());
             } else {
-                bw.write("class " + c.getName() + " {");
+                bw.write("class " + c.getName());
             }
+            
+            bw.write(" {");
             bw.newLine();
             for (FieldDescriber fd : c.getFields()) {
                 writeField(fd, bw);
+                addRelation(c.getName(), fd.getType());
             }
             for (MethodDescriber md : c.getMethods()) {
                 writeMethod(md, bw);
             }
             bw.write("}");
             bw.newLine();
+ 
+            for(String inh:c.getInheritances()) {
+                bw.write(" " + c.getName() + " --|> " + inh);                
+                bw.newLine();
+            }  
+
             if (!c.getPackage().isEmpty()) {
                 bw.write("end package");
                 bw.newLine();
@@ -112,7 +154,7 @@ public class PlantWriter {
         }
     }
     
-   void writeField(FieldDescriber fd, BufferedWriter bw) {
+   public void writeField(FieldDescriber fd, BufferedWriter bw) {
         try {
             writeVisibility(fd.getVisibility(), bw);
             bw.write(" " + fd.getName() + ":" + fd.getType());
@@ -122,7 +164,7 @@ public class PlantWriter {
         }
     } 
 
-   void writeMethod(MethodDescriber md, BufferedWriter bw) {
+   public void writeMethod(MethodDescriber md, BufferedWriter bw) {
         try {
             writeVisibility(md.getVisibility(), bw);
             bw.write(" "+ md.getName() + "(");
@@ -146,7 +188,7 @@ public class PlantWriter {
     }
 
    
-    void writeArgument(ArgumentDescriber arg, BufferedWriter bw) {
+    public void writeArgument(ArgumentDescriber arg, BufferedWriter bw) {
         try {
             bw.write(arg.getName() + ":" + arg.getType());
         } catch (IOException ex) {

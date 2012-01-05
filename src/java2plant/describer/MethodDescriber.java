@@ -4,12 +4,8 @@
  */
 package java2plant.describer;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -79,6 +75,5 @@ public class MethodDescriber {
     public void addArg(ArgumentDescriber arg) {
         this.getArgs().add(arg);
     }
-
 
 }

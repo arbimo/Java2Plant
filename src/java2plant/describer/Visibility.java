@@ -4,11 +4,6 @@
  */
 package java2plant.describer;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  *
  * @author arthur
@@ -42,6 +37,4 @@ public class Visibility {
         return this.visibility;
     }
 
-    
-        
 }

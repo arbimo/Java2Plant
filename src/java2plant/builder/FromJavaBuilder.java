@@ -13,7 +13,6 @@ import java2plant.describer.ClassDescriber;
 import java2plant.describer.ContextDescriber;
 import java2plant.describer.FieldDescriber;
 import java2plant.describer.MethodDescriber;
-import java2plant.describer.Visibility;
 
 /**
  *
@@ -25,7 +24,7 @@ public class FromJavaBuilder extends AbstractBuilder {
         this.context = ContextDescriber.getInstance();
     }
 
-    public ContextDescriber build(File fInputDir, File fOutputDir) {
+    public ContextDescriber build(File fInputDir) {
         try {
             ArrayList<File> files = new ArrayList();
             ArrayList<File> dirs = new ArrayList();
@@ -216,19 +215,12 @@ public String getNext(String src) {
 
     public ClassDescriber buildClassFromString(String str) {
         ClassDescriber cd = null;
-        String vis = "private";
-        boolean isAbstract = false;
-
+        
         String declaration = extractDeclaration(str);
-        String split[] = splitString(extractDeclaration(str), " ");
+        String split[] = splitString(extractDeclaration(str));
         
         for( int i=0 ; i< split.length ; i++ ) {
-            if(split[i].equals("public") || split[i].equals("private") ||
-                    split[i].equals("protected") || split[i].equals("package")) {
-                vis = split[i];
-            } else if(split[i].equals("abstract")) {
-                isAbstract = true;
-            } else if(split[i].equals("class")) {
+            if(split[i].equals("class")) {
                 i++;
                 cd = context.getClass(split[i]);
                 cd.setPackage(context.getNamespace());
@@ -238,20 +230,38 @@ public String getNext(String src) {
                 cd.setInterface(true);
             }
         }
+        
         cd.setPackage(context.getNamespace());
-        cd.setVisibility(vis);
-        cd.setAbstract(isAbstract);
-
+        
+        for( int i=0 ; i< split.length ; i++ ) {
+            if(split[i].equals("public") || split[i].equals("private") ||
+                    split[i].equals("protected") || split[i].equals("package")) {
+                cd.setVisibility(split[i]);
+            } else if(split[i].equals("abstract")) {
+                cd.setAbstract(true);
+            } else if(split[i].equals("extends")) {
+                i++;
+                for(; i<split.length && !split[i].equals("implements"); i++) {
+                    cd.addInheritance(split[i].replace(",", ""));
+                }
+            } else if(split[i].equals("implements")) {
+                i++;
+                for(; i<split.length && !split[i].equals("extends"); i++) {
+                    cd.addInheritance(split[i].replace(",", ""));
+                }
+            }
+        }
+        
         if(declaration.endsWith("{")) {
             str = str.substring(declaration.length(), str.lastIndexOf("}"));
         } else {
             str = "";
         }
-
+        
         while(!str.isEmpty()) {
             String current = getNext(str);
             declaration = extractDeclaration(current);
-
+            
             if(current.isEmpty()) {
                 str = "";
             } else if(current.endsWith(";") && declaration.contains("=")) {
@@ -267,12 +277,13 @@ public String getNext(String src) {
             str = str.substring(current.length());
         }
         
-
+        
         return cd;
     }
-
+    
     public MethodDescriber buildMethodFromString(String str) {
         MethodDescriber md = new MethodDescriber();
+        System.out.println("MethodBuilder : "+ str);
         String[] split = splitString(str);
         int i=0;
         while(i < split.length ) {
@@ -303,12 +314,12 @@ public String getNext(String src) {
                 }
                 i = split.length; //exit
             }
-
+            
         }
         /* Construction des arguments */
         int a = str.indexOf("(");
         int b = str.indexOf(")");
-
+        
         str = str.substring(str.indexOf("(")+1, str.indexOf(")"));
         if(!str.isEmpty()) {
             split = splitString(str, ",");
@@ -320,11 +331,12 @@ public String getNext(String src) {
         }
         return md;
     }
-
-    private ArgumentDescriber buildArgumentFromString(String str) {
+    
+    public ArgumentDescriber buildArgumentFromString(String str) {
         ArgumentDescriber ad = new ArgumentDescriber();
-
-        String[] split = splitString(str, " ");
+        System.out.println("ArgDescriber : " + str);
+        
+        String[] split = splitString(str);
         int i=0;
         while(i<split.length && split[i].isEmpty()) {
             i++;
@@ -335,13 +347,15 @@ public String getNext(String src) {
             i++;
         }
         ad.setName(split[i]);
-
+        
         return ad;
     }
-
+    
     public FieldDescriber buildFieldFromString(String str) {
         FieldDescriber fd = new FieldDescriber();
-
+        if(str.contains("HashMap")) {
+        System.out.println("Field Builder : " + str);
+        }
         str = str.replace(";","");
         
         String[] split = splitString(str);

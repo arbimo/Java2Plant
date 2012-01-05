@@ -16,6 +16,7 @@ abstract public class AbstractBuilder {
     protected InputStream is;
     protected ContextDescriber context;
     
+    //TODO: should be from File (input dir or file)
     public abstract ContextDescriber buildFromStream(InputStream inputStream);
 
     /**
@@ -26,6 +27,12 @@ abstract public class AbstractBuilder {
      * @return array of splited String
      */
     public static String[] splitString(String str, String regex) {
+        //TODO: clean up that mess
+        String buffer = null;
+        if(str.contains("<") && str.indexOf(">") > str.indexOf("<")) {
+            buffer = str.substring(str.indexOf("<"), str.indexOf(">")+1);
+            str = str.replaceAll("<[^>]*>", "!!----!!");
+        }
         String[] split = str.split(regex);
         int count = 0;
         
@@ -45,6 +52,12 @@ abstract public class AbstractBuilder {
             }
         }
 
+        if(buffer != null) {
+            for(int i=0 ; i<result.length; i++) {
+                result[i] = result[i].replaceAll("!!----!!", buffer);
+            }
+        }
+        
         return result;
     }
     

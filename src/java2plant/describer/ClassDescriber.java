@@ -23,7 +23,12 @@ public class ClassDescriber {
     private ArrayList<String> inheritances = new ArrayList();
 
     public void setName(String name) {
-        this.name = name;
+        //TODO: manage a class name and an alias? to deal with that
+        if(name.contains("<")) {
+            this.name = name.substring(0, name.indexOf("<"));
+        } else {
+            this.name = name;
+        }
     }
 
     public String getName() {
@@ -50,7 +55,6 @@ public class ClassDescriber {
             MethodDescriber md = (MethodDescriber) it.next();
             md.print();
         }
-
     }
 
     public void addField(FieldDescriber fd) {
@@ -90,10 +94,13 @@ public class ClassDescriber {
     }
 
     public void addInheritance(String inheritance) {
-        this.inheritances.add(inheritance);
+        //TODO: not clean
+        if(inheritance.contains("<")) {
+            this.inheritances.add(inheritance.substring(0, inheritance.indexOf("<")));
+        } else {
+            this.inheritances.add(inheritance);
+        }
     }
-
-    
 
     public boolean isInterface() {
         return isInterface;

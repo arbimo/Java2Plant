@@ -1,16 +1,8 @@
 package java2plant;
 
 import java2plant.describer.ContextDescriber;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java2plant.builder.AbstractBuilder;
 import java2plant.builder.FromJavaBuilder;
-import java2plant.builder.FromPlantBuilder;
 import java2plant.writer.PlantWriter;
 import javax.swing.JFileChooser;
 
@@ -20,9 +12,9 @@ import javax.swing.JFileChooser;
  */
 public class Java2Plant {
 
+    //TODO: clean up
     private static File fInputDir;
     private static File fOutputDir;
-    private static File fClassDir;
     
     /**
      * @param args the command line arguments
@@ -48,7 +40,6 @@ public class Java2Plant {
         }
         
         FromJavaBuilder fjb = new FromJavaBuilder();
-        ContextDescriber cd = fjb.build(fInputDir, fOutputDir);
         PlantWriter pw = new PlantWriter(ContextDescriber.getInstance());
         pw.write(fOutputDir);
         
