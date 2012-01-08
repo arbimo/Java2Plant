@@ -4,7 +4,8 @@
  */
 package java2plant.describer;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java2plant.model.ClassList;
 
 /**
  *
@@ -13,11 +14,12 @@ import java.util.ArrayList;
 public class ContextDescriber {
     private String namespace = "";
 
-    private ArrayList<ClassDescriber> classes = new ArrayList();
+	ClassList classes = null;
 
     private static ContextDescriber instance = null;
 
     private ContextDescriber() {
+		classes = ClassList.getInstance();
     }
 
     public static ContextDescriber getInstance() {
@@ -32,37 +34,19 @@ public class ContextDescriber {
     }
 
     public void addClass(ClassDescriber c) {
-        classes.add(c);
+		classes.addClass(c);	
     }
 
-    public ClassDescriber getClass(String name) {
-        ClassDescriber result = null;
-        for(ClassDescriber c:classes) {
-            if(name.equals(c.getName())) {
-                result = c;
-            }
-        }
-        if(result == null) {
-            result = new ClassDescriber();
-            result.setName(name);
-            addClass(result);
-        }
-        return result;
+    public ClassDescriber getClass(String pack, String name) {
+		return classes.getClass(pack, name);
     }
 
     public boolean classExists(String className) {
-        boolean result = false;
-        for(ClassDescriber c:classes) {
-            if(className.equals(c.getName())) {
-                result = true;
-            }
-        } 
-
-        return result;
+        return classes.classExists(className);
     }
 
-    public ArrayList<ClassDescriber> getClasses() {
-        return classes;
+    public Collection<ClassDescriber> getClasses() {
+        return classes.getClasses();
     }
 
     public String getNamespace() {

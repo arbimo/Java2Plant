@@ -28,11 +28,11 @@ public class FromPlantBuilder extends AbstractBuilder {
         context = ContextDescriber.getInstance();
     }
 
-    @Override
     public ContextDescriber buildFromStream(InputStream inputStream) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+	@Override
     public ContextDescriber buildFromFile(File inputFile) {
         try {
             BufferedReader bf = new BufferedReader(new FileReader(inputFile));
@@ -59,10 +59,10 @@ public class FromPlantBuilder extends AbstractBuilder {
                                 isAbstract = true;
                             } else if("class".equals(split[i])) {
                                 i++;
-                                cd = context.getClass(split[i]);
+                                cd = context.getClass(context.getNamespace(), split[i]);
                             } else if("interface".equals(split[i])) {
                                 i++;
-                                cd = context.getClass(split[i]);
+                                cd = context.getClass(context.getNamespace(), split[i]);
                                 cd.setInterface(true);
                             } else {
                                 Logger.getLogger(FromPlantBuilder.class.getName()).log(Level.SEVERE, null);

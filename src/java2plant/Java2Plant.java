@@ -3,6 +3,9 @@ package java2plant;
 import java2plant.describer.ContextDescriber;
 import java.io.File;
 import java2plant.builder.FromJavaBuilder;
+import java2plant.control.Controller;
+import java2plant.control.ToCtrl;
+import java2plant.gui.MainWindow;
 import java2plant.writer.PlantWriter;
 import javax.swing.JFileChooser;
 
@@ -38,10 +41,12 @@ public class Java2Plant {
             fc.showDialog(null, "Choose the output directory");
             fOutputDir= fc.getSelectedFile();
         }
+		MainWindow win = new MainWindow();
+		ToCtrl ctrl = Controller.getInstance();
         
-        FromJavaBuilder fjb = new FromJavaBuilder();
-        PlantWriter pw = new PlantWriter(ContextDescriber.getInstance());
-        pw.write(fOutputDir);
+		ctrl.setInputFile(fInputDir);
+		ctrl.setOutputFile(fOutputDir);
+		ctrl.parseJava();
         
     }
 

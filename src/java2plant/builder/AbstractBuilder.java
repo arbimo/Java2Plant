@@ -4,6 +4,7 @@
  */
 package java2plant.builder;
 
+import java.io.File;
 import java.io.InputStream;
 import java2plant.describer.ContextDescriber;
 
@@ -16,8 +17,7 @@ abstract public class AbstractBuilder {
     protected InputStream is;
     protected ContextDescriber context;
     
-    //TODO: should be from File (input dir or file)
-    public abstract ContextDescriber buildFromStream(InputStream inputStream);
+    public abstract ContextDescriber buildFromFile(File in);
 
     /**
      * This method does the same as String.split but also removes the empty strings

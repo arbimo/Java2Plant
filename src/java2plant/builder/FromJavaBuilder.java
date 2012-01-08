@@ -24,7 +24,8 @@ public class FromJavaBuilder extends AbstractBuilder {
         this.context = ContextDescriber.getInstance();
     }
 
-    public ContextDescriber build(File fInputDir) {
+	@Override
+    public ContextDescriber buildFromFile(File fInputDir) {
         try {
             ArrayList<File> files = new ArrayList();
             ArrayList<File> dirs = new ArrayList();
@@ -51,7 +52,7 @@ public class FromJavaBuilder extends AbstractBuilder {
             for(File f:files) {
                 FileInputStream fis = new FileInputStream(f);
                 AbstractBuilder builder = new FromJavaBuilder();
-                builder.buildFromStream(fis);
+                buildFromStream(fis);
             }
             
         } catch (Exception ex) {
@@ -62,7 +63,6 @@ public class FromJavaBuilder extends AbstractBuilder {
 
     }
 
-    @Override
     public ContextDescriber buildFromStream(InputStream inputStream) {
         this.is = inputStream;
         
@@ -222,11 +222,10 @@ public String getNext(String src) {
         for( int i=0 ; i< split.length ; i++ ) {
             if(split[i].equals("class")) {
                 i++;
-                cd = context.getClass(split[i]);
-                cd.setPackage(context.getNamespace());
+                cd = context.getClass(context.getNamespace(), split[i]);
             } else if(split[i].equals("interface")) {
                 i++;
-                cd = context.getClass(split[i]);
+                cd = context.getClass(context.getNamespace(), split[i]);
                 cd.setInterface(true);
             }
         }

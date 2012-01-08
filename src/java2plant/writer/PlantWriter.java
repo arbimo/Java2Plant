@@ -18,6 +18,7 @@ import java2plant.describer.ContextDescriber;
 import java2plant.describer.FieldDescriber;
 import java2plant.describer.MethodDescriber;
 import java2plant.describer.Visibility;
+import java2plant.model.ClassCollection;
 
 /**
  *
@@ -25,11 +26,11 @@ import java2plant.describer.Visibility;
  */
 public class PlantWriter extends AbstractWriter {
 
-    private final ContextDescriber context;
+    private final ClassCollection classes;
     private ArrayList<Relation> relations = new ArrayList();
 
-    public PlantWriter(ContextDescriber context) {
-        this.context = context;
+    public PlantWriter(ClassCollection classes) {
+        this.classes= classes;
     }
     
     @Override
@@ -37,13 +38,12 @@ public class PlantWriter extends AbstractWriter {
         FileWriter commonFW = null;
         try {
             fOutputDir.mkdirs();
-            ArrayList<ClassDescriber> classes = context.getClasses();
             
             commonFW = new FileWriter(fOutputDir.getAbsolutePath()
                     + File.separator + "complete-diag.uml");
             commonFW.write("@startuml img/default.png\n");
             
-            for(ClassDescriber c:classes) {
+            for(ClassDescriber c:classes.getClasses()) {
                 writeClass(c, fOutputDir);
                 commonFW.write("!include " + "classes" + File.separator +
                         c.getName() +".iuml\n");
@@ -82,7 +82,7 @@ public class PlantWriter extends AbstractWriter {
         if(class2.contains("<") && class2.indexOf(">") > class2.indexOf("<")) {
             class2 = class2.substring(class2.indexOf("<")+1, class2.indexOf(">"));
         }
-        if(context.classExists(class1) && context.classExists(class2)) {
+        if(classes.classExists(class1) && classes.classExists(class2)) {
             if(!relationExists(class1, class2)) {
                 relations.add(new Relation(class1, class2));
             }
