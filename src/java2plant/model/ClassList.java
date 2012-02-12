@@ -17,57 +17,57 @@ import javax.swing.AbstractListModel;
 public class ClassList extends AbstractListModel implements ClassCollection {
 
 	private static ClassList instance = null;
-    private ConcurrentHashMap<String, ClassDescriber> classes = new ConcurrentHashMap();
+	private ConcurrentHashMap<String, ClassDescriber> classes = new ConcurrentHashMap();
 
 	private ClassList() {
 	}
 
 	public static ClassList getInstance() {
-		if(instance == null) {
+		if (instance == null) {
 			instance = new ClassList();
 		}
 		return instance;
 	}
 
 	public void addClass(ClassDescriber c) {
-		classes.put(c.getPackage()+"."+c.getName(), c);
+		classes.put(c.getPackage() + "." + c.getName(), c);
 		fireContentsChanged(this, 0, getSize());
-    }
+	}
 
 	public ClassDescriber getClass(String id) {
 		return classes.get(id);
 	}
-	
-    public ClassDescriber getClass(String pack, String name) {
-        ClassDescriber result = null;
-		if(classes.containsKey(pack+ "." + name)) {
-			result = classes.get(pack + "." + name);	
+
+	public ClassDescriber getClass(String pack, String name) {
+		ClassDescriber result = null;
+		if (classes.containsKey(pack + "." + name)) {
+			result = classes.get(pack + "." + name);
 		} else {
 			result = new ClassDescriber();
 			result.setName(name);
 			result.setPackage(pack);
 			addClass(result);
 		}
-        return result;
-    }
+		return result;
+	}
 
 	@Override
-    public boolean classExists(String className) {
-        boolean result = false;
-        for(ClassDescriber c:classes.values()) {
-            if(className.equals(c.getPackage() + "." + c.getName())) {
-                result = true;
-            }
-        } 
+	public boolean classExists(String className) {
+		boolean result = false;
+		for (ClassDescriber c : classes.values()) {
+			if (className.equals(c.getPackage() + "." + c.getName())) {
+				result = true;
+			}
+		}
 
-        return result;
-    }
+		return result;
+	}
 
 	@Override
-    public Collection<ClassDescriber> getClasses() {
-        return classes.values();
-    }
-	
+	public Collection<ClassDescriber> getClasses() {
+		return classes.values();
+	}
+
 	@Override
 	public int getSize() {
 		return classes.size();
@@ -77,5 +77,4 @@ public class ClassList extends AbstractListModel implements ClassCollection {
 	public Object getElementAt(int index) {
 		return new ArrayList(classes.keySet()).get(index);
 	}
-
 }

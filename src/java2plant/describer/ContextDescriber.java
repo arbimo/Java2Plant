@@ -12,6 +12,8 @@ import java2plant.model.ClassList;
  * @author arthur
  */
 public class ContextDescriber {
+	//TODO: this class is not that usefull anymore
+
     private String namespace = "";
 
 	ClassList classes = null;
